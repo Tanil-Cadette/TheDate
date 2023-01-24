@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import './App.css';
+import { Homepage } from './Homepage';
 import { Login } from './Login';
 import { Register } from './Register';
+import { Friends } from './Friends';
+import { Profile } from './Profile';
+import { BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 
 function App() {
   const [currentForm, setCurrentForm] = useState('login');
@@ -11,17 +15,31 @@ function App() {
   }
 
 
-
   return (
-    <>
-      <h1 className='header'>The Date.</h1>
-        <div className='App'>
-          {
-            currentForm === "login" ? <Login onFormSwitch={toggleForm}/> : <Register onFormSwitch={toggleForm}/>
-          }
-        </div>
-    </>
+    <Router>
+      <header>
+        <h1 className='header'>The Date.</h1>
+      </header>
+      <body>
+        <div>
+          <Routes>
+              <Route path="/" element={currentForm === "login" ? <Login onFormSwitch={toggleForm}/> : <Register onFormSwitch={toggleForm}/>} />
+              <Route path="/home" element={<Homepage name="Tanil" />} />
+              <Route path="/friends" element={<Friends name="Tanil" />} />
+              <Route path="/profile" element={<Profile name="Tanil"/>} /> 
+          </Routes>
+        </div> 
+      </body>      
+    </Router>
     );
 }
 
 export default App;
+
+
+{/* <h1 className='header'>The Date.</h1>
+        <div className='App'>
+          {
+            currentForm === "login" ? <Login onFormSwitch={toggleForm}/> : <Register onFormSwitch={toggleForm}/>
+          }
+        </div> */}
