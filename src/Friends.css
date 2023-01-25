@@ -1,0 +1,23 @@
+.friend-form {
+    background-color: whitesmoke;
+    display:list-item;
+    text-align:left;
+}
+
+.friends-body {
+    text-align:left;
+    background-color: whitesmoke;
+    display:list-item;
+    /* margin:0;
+    padding: 0px; */
+    overflow-y: auto;
+    padding-left: 160px;
+}
+
+.location-input label {
+    width: 150px !important;
+}
+
+.friend-input {
+    width: 150px;
+}

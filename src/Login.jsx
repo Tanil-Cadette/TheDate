@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react"
 import { Homepage } from "./Homepage";
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link
-} from "react-router-dom";
 import AuthContext from "./context/AuthProvider";
 import axios from "axios";
 

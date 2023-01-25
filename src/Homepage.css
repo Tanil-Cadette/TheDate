@@ -1,6 +1,6 @@
 .Homepage-body {
     text-align: center;
-    background-color: white;
+    background-color: whitesmoke;
     margin:0;
     padding: 0px;
     overflow: auto;
@@ -27,7 +27,7 @@
     outline: 0;
     color: white!important;
     background-color: transparent!important;
-    padding: 24px 24px!important;
+    padding: 44px 24px!important;
     user-select: none;
     overflow: hidden;
     text-decoration: none;
@@ -46,8 +46,8 @@
     background-image: linear-gradient(79deg, rgb(231, 72, 99), red,rgb(255, 123, 0));
     text-align: center!important;
     font-size: 12px!important;
-    height: 110%;
-    position: fixed!important;
+    height: 100%;
+    position: absolute!important;
     z-index: 1;
     overflow: auto;
 }

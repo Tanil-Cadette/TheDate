@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./App"
 import { Link } from "react-router-dom";
+import { Navigation } from "./Navigation";
 import { Login } from "./Login";
 import { Friends } from "./Friends";
 import "./Homepage.css"
@@ -11,24 +12,7 @@ export const Homepage= (props) => {
     return (
         <>
                 <body className="Homepage-body">
-                    <nav className="Navbar">
-                        <a className="Homepage-nav"> 
-                        <i className="Homepage-navIcon"></i>
-                        <p><Link to="/home">HOME</Link></p>
-                        </a>
-                        <a className="Homepage-nav"> 
-                        <i className="Homepage-navIcon"></i>
-                        <p><Link to="/friends">FRIENDS</Link></p>
-                        </a>
-                        <a className="Homepage-nav"> 
-                        <i className="Homepage-navIcon"></i>
-                        <p><Link to="/profile">PROFILE</Link></p>
-                        </a>
-                        <a className="Homepage-nav"> 
-                        <i className="Homepage-navIcon"></i>
-                        <p><Link to="/">LOG OUT</Link></p>
-                        </a>
-                    </nav>
+                    <Navigation />
                     <div>
                         <h3>Hi {props.name}, are you ready to plan a date?</h3>
                         <p>{new Date().toLocaleString() + ""}</p>
