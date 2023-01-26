@@ -20,14 +20,14 @@ function App() {
       <header>
         <h1 className='header'>The Date.</h1>
       </header>
-      <body>
+      <div>
           <Routes>
               <Route path="/" element={currentForm === "login" ? <Login onFormSwitch={toggleForm}/> : <Register onFormSwitch={toggleForm}/>} />
               <Route path="/home" element={<Homepage name="Tanil" />} />
               <Route path="/friends" element={<Friends name="Tanil" />} />
               <Route path="/profile" element={<Profile name="Tanil"/>} /> 
           </Routes>
-      </body>      
+      </div>      
     </Router>
     );
 }

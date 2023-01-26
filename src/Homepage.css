@@ -1,9 +1,10 @@
 .Homepage-body {
-    text-align: center;
+    text-align:left;
     background-color: whitesmoke;
-    margin:0;
-    padding: 0px;
-    overflow: auto;
+    display:list-item;
+    overflow-y: auto;
+    padding-left: 160px;
+    list-style: none;
 }
 
 .Homepage-footer {
@@ -59,4 +60,6 @@
     border-radius: 10px;
     cursor: pointer;
     color: brown;
+    display: grid;
 }
+

@@ -9,12 +9,12 @@ import "./Homepage.css"
 export const Profile= (props) => {
     return (
         <>
-        <body className="Homepage-body">
-            <Navigation />
+        <Navigation />
+            <div className="Homepage-body">
             <div>
                 <h3>{props.name}</h3>
             </div>
-        </body>
+        </div>
     <footer className="Homepage-footer">
         Contact Us
     </footer>

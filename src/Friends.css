@@ -8,16 +8,30 @@
     text-align:left;
     background-color: whitesmoke;
     display:list-item;
-    /* margin:0;
-    padding: 0px; */
     overflow-y: auto;
     padding-left: 160px;
+    list-style: none;
 }
 
-.location-input label {
-    width: 150px !important;
+.friend-button{
+    float: right;
+}
+
+.location-input {
+    width: 30%;
 }
 
 .friend-input {
-    width: 150px;
+    width: 30%;
 }
+
+.box {
+    border: 1px solid black;
+    background-color: white;
+    width: 90%;
+    height: auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+
