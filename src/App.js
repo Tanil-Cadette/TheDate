@@ -26,6 +26,7 @@ function App() {
               <Route path="/home" element={<Homepage name="Tanil" />} />
               <Route path="/friends" element={<Friends name="Tanil" />} />
               <Route path="/profile" element={<Profile name="Tanil"/>} /> 
+              <Route path="*" element={currentForm === "login" ? <Login onFormSwitch={toggleForm}/> : <Register onFormSwitch={toggleForm}/>} />
           </Routes>
       </div>      
     </Router>

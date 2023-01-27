@@ -34,6 +34,7 @@ export const Homepage= (props) => {
     const [planDateButton, setPlanDateButton] = useState('Plan Date');
     const [pickInterestForm, setPickInterestForm] = useState(false);
     const [pickedFriend, setPickedFriend]= useState('')
+    const [pickedInterest, setPickedInterest] = useState('');
 
     useEffect(() => {
     }, [friendsList, planDateForm, pickInterestForm]);
@@ -47,19 +48,19 @@ export const Homepage= (props) => {
         setFriendNames(friendsList.map((friend) => friend.name));
     };
 
-    function handleInterestClicked(e) {
-        e.preventDefault();
-        setPickInterestForm(value => !value);
-        setPickedFriend(e.target.value)
+    function handleFriendClicked(e) {
+        if (e.target.checked) {
+            setPickedFriend(e.target.value)
+            setPickInterestForm(true);
+        } else {
+            setPickedFriend('')
+            setPickInterestForm(false);
+        }
+        e.target.classList.toggle("blue");
     }
 
     function displayInterest(nameOfFriend) {
-        if (pickInterestForm === false) {
-            return (
-                <div></div>
-            )
-        } else {
-            const selectedFriend = friendsList.filter(friend =>
+        const selectedFriend = friendsList.filter(friend =>
                 friend.name === nameOfFriend)[0];
             return (
                 <form>
@@ -67,14 +68,23 @@ export const Homepage= (props) => {
                 {selectedFriend.interest.map((interest) => (
                     <label key={interest}>
                         <br/>
-                        <input type="radio" name="interest" value={interest} />
+                        <input type="radio" name="interest" value={interest} onClick={handleInterestClicked}/>
                         {interest}
                     </label>
                 ))}
                 <button className="component-button">Let's Go!</button>
             </form>
         );}
-}
+
+    function handleInterestClicked(e) {
+        if (e.target.checked){
+            setPickedInterest(e.target.value)
+            console.log(e.target.value)
+        } else {
+            setPickedInterest('')
+        }
+    }
+
 
     return (
         <>
@@ -110,19 +120,20 @@ export const Homepage= (props) => {
                         <div>
                         {friendNames.map((name) => (
                             <label key={name}>
-                            <input type="radio" name="friend" value={name} onClick={handleInterestClicked}/>
+                            <input type="radio" name="friend" value={name} onClick={handleFriendClicked}/>
                             {name}
                             <br/>
                             </label>                           
                         ))}
-                        {pickInterestForm ? (
-                        displayInterest(pickedFriend)
-                        ) :
-                        (<div></div>)}
                         </div>
                     </form>
                     ) :
                     (<div></div>)}
+                    <br/>
+                        {pickInterestForm ? (
+                        displayInterest(pickedFriend)
+                        ) :
+                        (<div></div>)}
                 </div>
             </>
         );
