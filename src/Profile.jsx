@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Login } from "./Login";
 import { Friends } from "./Friends";
 import { Navigation } from "./Navigation";
-import "./Homepage.css"
+import "./Dashboard.css"
 
 export const Profile= (props) => {
     return (

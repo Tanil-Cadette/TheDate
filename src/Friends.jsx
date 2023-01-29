@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Login } from "./Login";
-import { Homepage } from "./Homepage";
+import { Homepage } from "./Dashboard";
 import { Navigation } from "./Navigation";
 import "./App"
 import "./Friends.css"

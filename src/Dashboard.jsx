@@ -4,7 +4,19 @@ import { Link } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import { Login } from "./Login";
 import { Friends } from "./Friends";
-import "./Homepage.css"
+import "./Dashboard.css"
+
+
+// function Dashboard() {
+//   const userData = JSON.stringify(Userfront.user, null, 2);
+//   return (
+//     <div>
+//       <h2>Dashboard</h2>
+//       <pre>{userData}</pre>
+//       <button onClick={Userfront.logout}>Logout</button>
+//     </div>
+//   );
+// }
 
 let friends = [
     {"id":1, 
@@ -26,7 +38,7 @@ let friends = [
     {"date": "1/14/23", "place": "Riis Beach", "review":"how was the date?"}]}
 ]
 
-export const Homepage= (props) => {
+export const Dashboard= (props) => {
 
     const [friendsList, setFriendsList] = useState(friends);
     const [friendNames, setFriendNames] = useState([]);
