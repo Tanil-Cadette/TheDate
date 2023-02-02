@@ -19,9 +19,9 @@ export const PasswordReset= () => {
             <div>
                 <PasswordResetForm />
             </div>
-            <ul>
-                <p><Link to="/register">Don't have an account? Register Here</Link></p>
-                <p><Link to="/">Have an account? Login Here</Link></p>
+            <ul className="login-form">
+                <button className="link-button"><Link className="active" to="/register">Don't have an account? Register Here</Link></button>
+                <button className="link-button"><Link className="active" to="/">Have an account? Login Here</Link></button>
             </ul>
             </div>
             </body>

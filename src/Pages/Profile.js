@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./App"
+import "../App"
 import { Link } from "react-router-dom";
 import { Login } from "./Login";
 import { Friends } from "./Friends";

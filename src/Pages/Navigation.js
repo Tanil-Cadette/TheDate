@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, withRouter } from "react-router-dom";
-import "./App"
+import "../App"
 import Userfront from "@userfront/react";
 Userfront.init("demo1234");
 

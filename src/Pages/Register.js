@@ -18,9 +18,9 @@ export const Register = (props) => {
             <div>
                 <SignupForm />
             </div>
-            <ul>
-                <p><Link to="/reset">Forgot your password?</Link></p>
-                <p><Link to="/">Have an account? Login Here</Link></p>
+            <ul className="login-form">
+                <button className="link-button"><Link className="active" to="/reset">Forgot your password?</Link></button>
+                <button className="link-button"><Link className="active" to="/">Have an account? Login Here</Link></button>
             </ul>
             </div>
             </body>

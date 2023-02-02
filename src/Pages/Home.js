@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 // import { Login } from './Login';
-import "./App"
+import "../App"
 import Userfront from "@userfront/react";
 Userfront.init("demo1234");
 
@@ -20,9 +20,9 @@ export const Home = () => {
         <div>
             <LoginForm />
         </div>
-        <ul>
-            <p><Link to="/reset">Forgot your password?</Link></p>
-            <p><Link to="/register">Don't have an account? Register Here</Link></p>
+        <ul className="login-form">
+            <button className="link-button"><Link className="active" to="/reset">Forgot your password?</Link></button>
+            <button className="link-button"><Link className="active" to="/register">Don't have an account? Register Here</Link></button>
         </ul>
         </div>
         </body>

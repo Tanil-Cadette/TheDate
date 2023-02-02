@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react"
 import { Link } from "react-router-dom";
 import { Homepage } from "./Dashboard";
-import AuthContext from "./context/AuthProvider";
+import AuthContext from "../context/AuthProvider";
 import axios from "axios";
 import Userfront from "@userfront/react";
 Userfront.init("demo1234");
@@ -20,9 +20,9 @@ export const Login = (props) => {
         <div>
             <LoginForm />
         </div>
-        <ul>
-            <p><Link to="/reset">Forgot your password?</Link></p>
-            <p><Link to="/register">Don't have an account? Register Here</Link></p>
+        <ul className="login-form">
+            <button className="link-button"><Link className="active" to="/reset">Forgot your password?</Link></button>
+            <button className="link-button"><Link className="active" to="/register">Don't have an account? Register Here</Link></button>
         </ul>
         </div>
         </body>

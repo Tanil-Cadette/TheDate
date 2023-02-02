@@ -1,65 +1,16 @@
 import React, { useState } from 'react';
 import './App.css';
-import { Dashboard } from './Dashboard';
-import { Login } from './Login';
-import { Register } from './Register';
-import { Home } from './Home';
-import { Friends } from './Friends';
-import { Profile } from './Profile';
-import { PasswordReset } from './PasswordReset';
+import { Dashboard } from './Pages/Dashboard';
+import { Login } from './Pages/Login';
+import { Register } from './Pages/Register';
+import { Home } from './Pages/Home';
+import { Friends } from './Pages/Friends';
+import { Profile } from './Pages/Profile';
+import { PasswordReset } from './Pages/PasswordReset';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Userfront from "@userfront/react";
 Userfront.init("demo1234");
 
-// const SignupForm = Userfront.build({
-// toolId: "nkmbbm",
-// });
-
-// const LoginForm = Userfront.build({
-//     toolId: "alnkkd",
-// });
-
-// const PasswordResetForm = Userfront.build({
-//     toolId: "dkbmmo",
-// });
-
-// function Home() {
-//   return (
-//     <div>
-//       <h2>Home</h2>
-//       <SignupForm />
-//     </div>
-//   );
-// }
-
-// function Login() {
-//   return (
-//     <div>
-//       <h2>Login</h2>
-//       <LoginForm />
-//     </div>
-//   );
-// }
-
-// function PasswordReset() {
-//   return (
-//     <div>
-//       <h2>Password Reset</h2>
-//       <PasswordResetForm />
-//     </div>
-//   );
-// }
-
-// function Dashboard() {
-//   const userData = JSON.stringify(Userfront.user, null, 2);
-//   return (
-//     <div>
-//       <h2>Dashboard</h2>
-//       <pre>{userData}</pre>
-//       <button onClick={Userfront.logout}>Logout</button>
-//     </div>
-//   );
-// }
 
 function RequireAuth({ children }) {
   let location = useLocation();

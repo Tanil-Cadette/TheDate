@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import "./App"
+import "../App"
 import { Link } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import { Login } from "./Login";
 import { Friends } from "./Friends";
+import Userfront from "@userfront/react";
 import "./Dashboard.css"
 
 
@@ -29,7 +30,7 @@ let friends = [
     "name": "Karina", 
     "location": "Houston, TX", 
     "interest": ["Beach", "Sights"],
-    "date history": []},
+    "date": []},
     {"id": 3, 
     "name": "Remi", 
     "location": "Miami, Fl", 
@@ -39,6 +40,8 @@ let friends = [
 ]
 
 export const Dashboard= (props) => {
+
+    const userData = JSON.stringify(Userfront.user, null, 2);
 
     const [friendsList, setFriendsList] = useState(friends);
     const [friendNames, setFriendNames] = useState([]);
@@ -106,12 +109,13 @@ export const Dashboard= (props) => {
                         <h3>Hi {props.name}, are you ready to plan a date?</h3>
                         <p>{new Date().toLocaleString() + ""}</p>
                     </div>
+                    <pre>{userData}</pre>
                     <div>
                         <h4>Recent Dates</h4>
                         {friendsList.map((friend) => {
                         return (                        
                             <div className="box" key={friend.id} >
-                                {friend["date history"].length ? 
+                                {friend["date history"] ? 
                                 friend["date history"].map((history, index) => (
                                     <div key={index}>
                                         You went to {history["place"]} on {history["date"]} with {friend.name}
