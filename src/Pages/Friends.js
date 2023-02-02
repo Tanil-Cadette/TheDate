@@ -17,9 +17,9 @@ const api = {
             .then((response) => response.data)
             .catch(api.logErr),
     
-    getFriend: (friend_id) =>
+    getFriend: (friendId) =>
         axios
-            .get(`${api.baseUrl}/friends/${friend_id}`)
+            .get(`${api.baseUrl}/friends/${friendId}`)
             .then((response) => response.data)
             .catch(api.logErr),
 
@@ -33,7 +33,13 @@ const api = {
         axios
             .post(`${api.baseUrl}/friends`, friendData)
             .then((response) => response.data)
-            .catch(api.logErr)
+            .catch(api.logErr),
+    
+    deleteFriend: (friendId) =>
+        axios
+            .delete(`${api.baseUrl}/friends/${friendId}`)
+            .then((response) => response.data)
+            .catch((api.logErr))
 };
 
 
@@ -47,32 +53,62 @@ export const Friends = (props) => {
     const [friendsList, setFriendsList] = useState([]);
     const [friendDates, setFriendDates] = useState([]);
     const [selectedFriendId, setSelectedFriendId] = useState(null);
-    const [dateHistory, setDateHistory] = useState(false);
+    const [removeFriendId, setRemoveFriendId] = useState(null);
     const interests= ["Sights", "Beach", "Park", "Historical", "Nightlife", "Restaurant", "Shopping"]
 
+//updates the friend list
     const refreshFriendsList = () => {
         api.getAllFriends().then((allFriends) =>{
             setFriendsList(allFriends);
         })
-        console.log(friendsList);
     }
     useEffect(refreshFriendsList, []);
 
-    const refreshDatesList = (friend_id) => {
-        api.getFriendAndDates(friend_id).then((allDates) =>{
-            setSelectedFriendId(friend_id);
-            setFriendDates(allDates.date);
-        })
-        console.log(friendDates);
-    }
+//updates one friends list of dates
+    const refreshDatesList = (friendId) => {
+        if (friendId !== null) {
+            api.getFriendAndDates(friendId).then((allDates) =>{
+                setFriendDates(allDates.date);
+                console.log(allDates.date);
+            })
+        }};
 
-    useEffect(() => {
-        if (selectedFriendId) {
-            refreshDatesList(selectedFriendId);
+//deletes one friend 
+    const deleteFriend = (friendId) => {
+        if (friendId !== null){
+            api.deleteFriend(friendId).then((response) => {
+                let updatedFriendList = [...friendsList].filter(
+                    (friend) => friend.friendId !== friendId
+                );
+                setFriendsList(updatedFriendList);
+                setRemoveFriendId(null)
+                window.location.reload()
+                console.log(friendsList)
+            });
         }
-    }, [selectedFriendId]);
-    
+        };
 
+//handle date history button on click
+    const handleDateHistoryButton = (friendId) => {
+        setSelectedFriendId(friendId);
+    } 
+//handle delete button clicked
+    const handleDeleteButton = (friendId) => {
+        setRemoveFriendId(friendId);
+    }
+//adds new friends to list 
+    const createNewFriend = (newFriendData) => {
+        api.postFriend(newFriendData).then((newFriend) => {
+            setFriendsList(friendsList => [...friendsList, newFriend])
+        })
+        .catch((error) => {
+            console.log(error.response.data);
+            console.log(error.response.headers);
+            console.log(error.response.status);
+            console.log(error.response.statusText);
+        });
+    }
+//makes a list of all the interest clicked 
     const handleInterestClick = (e) => {
         setInterestSelected(true);
         const interest = e.target.value;
@@ -86,22 +122,25 @@ export const Friends = (props) => {
         }
         setNewFriendInterest(newSelectedInterests);
     } 
-    
-    const handleDateHistoryClicked = (friendId) => {
-        refreshDatesList(friendId);
-        if (friendDates && selectedFriendId === friendId) {
-            setDateHistory(true);
-        } else {
-            setDateHistory(false)
-        }
-    };
 
+// sets the selected id value to the friend that was clicked 
+    useEffect(() => {
+        refreshDatesList(selectedFriendId);
+    }, [selectedFriendId]);
+
+// removes friend if id selected
+    useEffect(() =>{
+        deleteFriend(removeFriendId);
+    }, [removeFriendId]);
+
+// changes add friend button from add friend to cancel 
     function toggleClick(e) {
         e.preventDefault();
         setfriendForm(value => !value);
         addFriendButton === 'Cancel' ? setAddFriendButton('Add Friend') : setAddFriendButton('Cancel')
     };
 
+// post new friend to database after submit is clicked
     function newFriend(e) {
         e.preventDefault();
         if (newFriendName === "" || newFriendLocation === "" || newFriendInterest.length === 0) {
@@ -124,18 +163,6 @@ export const Friends = (props) => {
     };
 
     
-    const createNewFriend = (newFriendData) => {
-        api.postFriend(newFriendData).then((newFriend) => {
-            setFriendsList(friendsList => [...friendsList, newFriend])
-        })
-        .catch((error) => {
-            console.log(error.response.data);
-            console.log(error.response.headers);
-            console.log(error.response.status);
-            console.log(error.response.statusText);
-        });
-    }
-    
 
     return (
         <>
@@ -150,36 +177,39 @@ export const Friends = (props) => {
                         const dateHistoryButton = selectedFriendId === friend.id ? "Hide" : "Date History";
                         return (  
                         <>
-                        <div className="box" key={friend.id} > 
-                            Name: {friend.name} 
-                            <br />
-                            Location: {friend.location}
-                            <br/>
-                            Interest: {interestString}
-                            <br/>
-                            <section className="friend-button">
-                            <button className="component-button" onClick={() => handleDateHistoryClicked(friend.id)}> {dateHistoryButton} </button>
-                                { dateHistory ? (
-                                    <div>
-                                        There is History
+                            <div className="box" key={friend.id} > 
+                                Name: {friend.name} 
+                                <br />
+                                Location: {friend.location}
+                                <br/>
+                                Interest: {interestString}
+                                <br/>
+                                    <section className="friend-button">
+                                            <button className="component-button" onClick={() => {
+                                                    handleDateHistoryButton(friend.id)
+                                                }}> 
+                                                {dateHistoryButton} 
+                                            </button>
+                                                <div>
+                                                    {selectedFriendId === friend.id ? (
+                                                        <div>Dates</div>
+                                                    ) : (<div></div>)}
+                                                </div>
+                                    </section>
+                                        <div className="friend-button">
+                                            <br/>
+                                            <button className="component-button"> Edit </button>
+                                            <br/>
+                                            <button className="component-button" onClick={() => {
+                                                handleDeleteButton(friend.id)
+                                            }}> Remove </button>
+                                        </div>
                                     </div>
-                                ): (
-                                    <div>
-                                    </div>
-                                )}
-                            </section>
-                        <div className="friend-button">
-                            <br/>
-                            <button className="component-button"> Edit </button>
-                            <br/>
-                            <button className="component-button"> Remove </button>
-                        </div>
-                        </div>
                     </>
                         );
                     })
                     ) : (
-                    <p>Friend list is empty.</p>
+                    <p>No friends, add a friend now.</p>
                     )}
             </div>
             <br/>
