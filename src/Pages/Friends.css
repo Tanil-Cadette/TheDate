@@ -4,11 +4,18 @@
     text-align:left;
 }
 
+.friend-updateform {
+    background-color: whitesmoke;
+    display:list-item;
+    text-align:left;
+}
+
 .friends-body {
     text-align:left;
     background-color: whitesmoke;
     display:list-item;
-    overflow-y: auto;
+    overflow-y: scroll;
+    height: 100vh;
     padding-left: 160px;
     list-style: none;
 }

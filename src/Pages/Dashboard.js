@@ -6,6 +6,7 @@ import { Login } from "./Login";
 import { Friends } from "./Friends";
 import Userfront from "@userfront/react";
 import "./Dashboard.css"
+import axios from "axios";
 
 
 // function Dashboard() {
@@ -18,38 +19,40 @@ import "./Dashboard.css"
 //     </div>
 //   );
 // }
+const api = {
+    baseUrl: process.env.REACT_APP_BACKEND_URL,
 
-let friends = [
-    {"id":1, 
-    "name": "Chaneil", 
-    "location": "Brooklyn, NY", 
-    "interest": ["Nightlife", "Historical", "Restaurants"],
-    "date history": [{"date": "1/10/23", "place": "Moma", "review":"how was the date?"},
-                    {"date": "1/14/23", "place": "Jones Beach", "review":"how was the date?"}]},
-    {"id": 4, 
-    "name": "Karina", 
-    "location": "Houston, TX", 
-    "interest": ["Beach", "Sights"],
-    "date": []},
-    {"id": 3, 
-    "name": "Remi", 
-    "location": "Miami, Fl", 
-    "interest": ["Beach", "Historical", "Restaurants"],
-    "date history": [{"date": "1/19/23", "place": "Italy", "review":"how was the date?"},
-    {"date": "1/14/23", "place": "Riis Beach", "review":"how was the date?"}]}
-]
+    logErr: (err) => {
+        console.log("Request error", err.config.url, err.config.data);
+        console.log(err);
+    },
+
+    getAllFriends: () =>
+        axios
+            .get(`${api.baseUrl}/friends`)
+            .then((response) => response.data)
+            .catch(api.logErr)
+}
+
 
 export const Dashboard= (props) => {
 
     const userData = JSON.stringify(Userfront.user, null, 2);
 
-    const [friendsList, setFriendsList] = useState(friends);
+    const [friendsList, setFriendsList] = useState([]);
     const [friendNames, setFriendNames] = useState([]);
     const [planDateForm, setPlanDateForm] = useState(false);
     const [planDateButton, setPlanDateButton] = useState('Plan Date');
     const [pickInterestForm, setPickInterestForm] = useState(false);
     const [pickedFriend, setPickedFriend]= useState('')
     const [pickedInterest, setPickedInterest] = useState('');
+
+    const refreshFriendsList = () => {
+        api.getAllFriends().then((allFriends) =>{
+            setFriendsList(allFriends);
+        })
+    }
+    useEffect(refreshFriendsList, []);
 
     useEffect(() => {
     }, [friendsList, planDateForm, pickInterestForm]);
@@ -91,6 +94,10 @@ export const Dashboard= (props) => {
             </form>
         );}
 
+    function findDate(friendData) {
+
+    };
+
     function handleInterestClicked(e) {
         if (e.target.checked){
             setPickedInterest(e.target.value)
@@ -108,24 +115,17 @@ export const Dashboard= (props) => {
                     <div>
                         <h3>Hi {props.name}, are you ready to plan a date?</h3>
                         <p>{new Date().toLocaleString() + ""}</p>
-                    </div>
-                    <pre>{userData}</pre>
-                    <div>
-                        <h4>Recent Dates</h4>
-                        {friendsList.map((friend) => {
-                        return (                        
-                            <div className="box" key={friend.id} >
-                                {friend["date history"] ? 
-                                friend["date history"].map((history, index) => (
-                                    <div key={index}>
-                                        You went to {history["place"]} on {history["date"]} with {friend.name}
-                                    </div>
-                                )): 
-                                <div>
-                                </div>}
-                            </div>
-                        )
-                    })}
+                        <ul>
+                            <li>
+                                Let start by picking a friend you would like to take on a date
+                            </li>
+                            <li>
+                                Pick one of your friend's interest to find the best place near them that relates to that interest.
+                            </li>
+                            <li>
+                                Choose the perfect date!
+                            </li>
+                        </ul>
                     </div>
                     <br/>
                     <button className="component-button" onClick={toggleClick}>{planDateButton}</button>
@@ -150,8 +150,28 @@ export const Dashboard= (props) => {
                         displayInterest(pickedFriend)
                         ) :
                         (<div></div>)}
+                    <div>
+
+                    </div>
                 </div>
             </>
         );
     };
 
+//<div>
+// <h4>Recent Dates</h4>
+// {friendsList.map((friend) => {
+// return (                        
+//     <div className="box" key={friend.id} >
+//         {friend["date history"] ? 
+//         friend["date history"].map((history, index) => (
+//             <div key={index}>
+//                 You went to {history["place"]} on {history["date"]} with {friend.name}
+//             </div>
+//         )): 
+//         <div>
+//         </div>}
+//     </div>
+// )
+// })}
+// </div> 
