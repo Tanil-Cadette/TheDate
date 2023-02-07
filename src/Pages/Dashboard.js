@@ -34,7 +34,6 @@ const api = {
             .catch(api.logErr)
 }
 
-
 export const Dashboard= (props) => {
 
     const userData = JSON.stringify(Userfront.user, null, 2);
@@ -77,6 +76,10 @@ export const Dashboard= (props) => {
         e.target.classList.toggle("blue");
     }
 
+    function handleLetsGo(e) {
+        
+    }
+
     function displayInterest(nameOfFriend) {
         const selectedFriend = friendsList.filter(friend =>
                 friend.name === nameOfFriend)[0];
@@ -94,9 +97,6 @@ export const Dashboard= (props) => {
             </form>
         );}
 
-    function findDate(friendData) {
-
-    };
 
     function handleInterestClicked(e) {
         if (e.target.checked){

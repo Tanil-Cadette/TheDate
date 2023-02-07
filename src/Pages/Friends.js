@@ -5,6 +5,7 @@ import "./Friends.css"
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 
+
 const api = {
     baseUrl: process.env.REACT_APP_BACKEND_URL,
 
@@ -47,8 +48,27 @@ const api = {
         axios
             .delete(`${api.baseUrl}/friends/${friendId}`)
             .then((response) => response.data)
+            .catch((api.logErr)),
+    
+    getCoords: (location) =>
+        axios
+            .get(`https://us1.locationiq.com/v1/search?key=${process.env.REACT_APP_LOCATION_IQ_API_KEY}&q=${location}&format=json`)
+            .then((response) => response.date)
             .catch((api.logErr))
 };
+
+export const fetchPlace = async (text) => {
+    try {
+        const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${text}.json?access_token=${process.env.REACT_APP_MAP_API_KEY}&cachebuster=1625641871908&autocomplete=true&types=place`
+        );
+        if (!res.ok) throw new Error(res.statusText);
+        return res.json();
+    } catch (err) {
+        return { error: "Unable to retrieve places" };
+    }
+};
+
 
 
 export const Friends = (props) => {
@@ -60,6 +80,9 @@ export const Friends = (props) => {
     const [interestSelected, setInterestSelected] = useState(false);
     const [friendsList, setFriendsList] = useState([]);
     const [removeFriendId, setRemoveFriendId] = useState(null);
+    const [autocompleteCities, setAutocompleteCities] = useState([]);
+    const [autocompleteErr, setAutocompleteErr] = useState("");
+    const [locationCoordinates, setLocationCoordinates] = useState([]);
     const interests= ["Sights", "Beach", "Park", "Historical", "Nightlife", "Restaurant", "Shopping"]
 
 //updates the friend list
@@ -85,6 +108,30 @@ export const Friends = (props) => {
         }
         };
 
+//gets friends coordinates
+    const findCoords = (location) => {
+        api.getCoords(location).then((response) => {
+            console.log(response);
+        });
+        }
+
+// handle friend location verification
+    const handleCityChange = async (e) => {
+        setNewFriendLocation(e.target.value);
+        if (!newFriendLocation) return;
+
+    const res = await fetchPlace(newFriendLocation);
+    !autocompleteCities.includes(e.target.value) &&
+    res.features &&
+        setAutocompleteCities(res.features.map((place) => place.place_name));
+        res.error ? setAutocompleteErr(res.error) : setAutocompleteErr("");
+    
+};
+
+    useEffect(() =>{
+        findCoords(newFriendLocation);
+    }, [newFriendLocation]);
+
 //edits friend info
     const editFriendData = (friendData, id) => {
         api.updateFriend(friendData, id).then((response) => {
@@ -104,8 +151,6 @@ function editFriend(friend_id) {
     editFriendData(friendData, friend_id)
     .then(refreshFriendsList)
 }
-
-//gets one friends list of dates
 
 //handle date history displayes
     const handleDateHistoryButton = (friend) => {
@@ -143,6 +188,7 @@ function editFriend(friend_id) {
             console.log(error.response.statusText);
         });
     }
+
 //makes a list of all the interest clicked 
     const handleInterestClick = (e) => {
         setInterestSelected(true);
@@ -174,7 +220,6 @@ function editFriend(friend_id) {
         }
         setNewFriendInterest(newSelectedInterests);
 } 
-
 
 // removes friend if id selected
     useEffect(() =>{
@@ -318,9 +363,6 @@ function editFriend(friend_id) {
                         <form className="friend-form">
                         <label>Name: </label>
                         <input className='friend-input' value={newFriendName} onChange={(e) => setNewFriendName(e.target.value)} type="name" placeholder="Enter name" id="friendname" name="friendname" required />
-                        <br />
-                        <label>Location: </label>
-                        <input className="location-input" value={newFriendLocation} onChange={(e) => setNewFriendLocation(e.target.value)} type="location" placeholder="What city is friend located in?" id="friendlocation" name="friendlocation" required />
                         <br/>
                         <label>Interests: </label>
                         {interests.map((interest) => (
@@ -330,6 +372,32 @@ function editFriend(friend_id) {
                             {interest}
                             </label>                           
                         ))}
+                        <br />
+                        <label htmlFor="city" className="label">
+                            Location: 
+                            {autocompleteErr && (
+                            <span className="inputError">{autocompleteErr}</span>
+                            )}
+                        </label>
+                        <input
+                            list="places"
+                            type="text"
+                            id="city"
+                            name="city"
+                            onChange={handleCityChange}
+                            value={newFriendLocation}
+                            required
+                            pattern={autocompleteCities.join("|")}
+                            autoComplete="off"
+                        />
+                        <datalist id="places">
+                            {autocompleteCities.map((city, i) => (
+                            <option key={i}>{city}</option>
+                            ))}
+                        </datalist>
+                        <span className="placesAutocomplete__hint">
+                            *start typing and choose your city from the given options
+                        </span>
                         <br />
                         <button className="component-button" onClick={newFriend}>
                             Submit
@@ -345,5 +413,4 @@ function editFriend(friend_id) {
         );
 }
 
-// disabled={!interestSelected}
 
