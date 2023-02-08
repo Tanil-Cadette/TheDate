@@ -49,6 +49,7 @@ export const Dashboard= (props) => {
     const refreshFriendsList = () => {
         api.getAllFriends().then((allFriends) =>{
             setFriendsList(allFriends);
+            console.log(friendsList);
         })
     }
     useEffect(refreshFriendsList, []);
@@ -60,24 +61,27 @@ export const Dashboard= (props) => {
         e.preventDefault();
         setPlanDateForm(value => !value);
         setPickInterestForm(false);
-        
-        planDateButton === 'Cancel' ? setPlanDateButton('Plan Date') : setPlanDateButton('Cancel')
-        setFriendNames(friendsList.map((friend) => friend.name));
+
+        if (planDateButton === 'Cancel') {
+            setPlanDateButton('Plan Date') 
+            setPickedInterest('') 
+        } else {
+            setPlanDateButton('Cancel')
+            setPickedInterest('')
+        }
+            // setFriendNames(friendsList.map((friend) => friend.name));
     };
 
     function handleFriendClicked(e) {
         if (e.target.checked) {
             setPickedFriend(e.target.value)
             setPickInterestForm(true);
+            console.log(e.target.value);
         } else {
             setPickedFriend('')
             setPickInterestForm(false);
         }
         e.target.classList.toggle("blue");
-    }
-
-    function handleLetsGo(e) {
-        
     }
 
     function displayInterest(nameOfFriend) {
@@ -93,7 +97,6 @@ export const Dashboard= (props) => {
                         {interest}
                     </label>
                 ))}
-                <button className="component-button">Let's Go!</button>
             </form>
         );}
 
@@ -134,10 +137,10 @@ export const Dashboard= (props) => {
                         <form>
                         <label>Who would you like to go on a date with?</label>
                         <div>
-                        {friendNames.map((name) => (
-                            <label key={name}>
-                            <input type="radio" name="friend" value={name} onClick={handleFriendClicked}/>
-                            {name}
+                        {friendsList.map((friend) => (
+                            <label key={friend.id}>
+                            <input type="radio" name="friend" value={friend.name} onClick={handleFriendClicked}/>
+                            {friend.name}
                             <br/>
                             </label>                           
                         ))}
@@ -151,27 +154,14 @@ export const Dashboard= (props) => {
                         ) :
                         (<div></div>)}
                     <div>
-
+                    {pickedInterest ? (
+                        <div>
+                            {pickedInterest}
+                            {console.log(pickedFriend)}
+                        </div>
+                    ) : (<div></div>)}
                     </div>
                 </div>
             </>
         );
     };
-
-//<div>
-// <h4>Recent Dates</h4>
-// {friendsList.map((friend) => {
-// return (                        
-//     <div className="box" key={friend.id} >
-//         {friend["date history"] ? 
-//         friend["date history"].map((history, index) => (
-//             <div key={index}>
-//                 You went to {history["place"]} on {history["date"]} with {friend.name}
-//             </div>
-//         )): 
-//         <div>
-//         </div>}
-//     </div>
-// )
-// })}
-// </div> 

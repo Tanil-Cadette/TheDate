@@ -53,7 +53,7 @@ const api = {
     getCoords: (location) =>
         axios
             .get(`https://us1.locationiq.com/v1/search?key=${process.env.REACT_APP_LOCATION_IQ_API_KEY}&q=${location}&format=json`)
-            .then((response) => response.date)
+            .then((response) => response.data)
             .catch((api.logErr))
 };
 
@@ -69,14 +69,13 @@ export const fetchPlace = async (text) => {
     }
 };
 
-
-
 export const Friends = (props) => {
     const [friendForm, setfriendForm] = useState(false);
     const [addFriendButton, setAddFriendButton] = useState('Add Friend')
     const [newFriendName, setNewFriendName] = useState('');
     const [newFriendLocation, setNewFriendLocation] = useState('');
     const [newFriendInterest, setNewFriendInterest] = useState([]);
+    const [editFriendLocation, setEditFriendLocation] = useState('');
     const [interestSelected, setInterestSelected] = useState(false);
     const [friendsList, setFriendsList] = useState([]);
     const [removeFriendId, setRemoveFriendId] = useState(null);
@@ -108,12 +107,49 @@ export const Friends = (props) => {
         }
         };
 
-//gets friends coordinates
-    const findCoords = (location) => {
-        api.getCoords(location).then((response) => {
-            console.log(response);
-        });
+// post new friend to database after submit is clicked
+    function newFriend(e) {
+        e.preventDefault();
+        if (newFriendName === "" || newFriendLocation === "" || newFriendInterest.length === 0) {
+            if(newFriendName === "") alert("Please enter a name")
+            if(newFriendLocation === "") alert("Please enter a location")
+            if(newFriendInterest.length === 0) alert("Please select at least one interest")
+            return;
         }
+        findCoords(newFriendLocation);
+    };
+
+//gets friends coordinates when adding new friend
+    const findCoords = async (friendLocation) => {
+        const response = await api.getCoords(friendLocation);
+        setLocationCoordinates([response[0].lat, response[0].lon]);
+        setfriendForm(false);   
+        setAddFriendButton('Add Friend');
+        window.location.reload();
+    };
+
+//gets friends coordinates when editing friend 
+//     const updateFindCoords = async (friendLocation, friendData, friend_id) => {
+//         const response = await api.getCoords(friendLocation);
+//         friendData['location_coords'] = [response[0].lat, response[0].lon];
+//         friendData['location_coords'] = ['0', '0'];
+//         editFriendData(friendData, friend_id)
+//             .then(() => refreshFriendsList());
+// };
+
+//post new friend to database
+    useEffect(() => {
+        if (locationCoordinates.length > 0) {
+            createNewFriend({
+                'name': newFriendName,
+                'location': newFriendLocation,
+                'interest': newFriendInterest,
+                'location_coords': locationCoordinates
+            });
+            window.location.reload();
+        }
+    }, [locationCoordinates]);
+
 
 // handle friend location verification
     const handleCityChange = async (e) => {
@@ -128,31 +164,44 @@ export const Friends = (props) => {
     
 };
 
-    useEffect(() =>{
-        findCoords(newFriendLocation);
-    }, [newFriendLocation]);
+// handle friend location verification after edit
+    const handleEditCityChange = async (e) => {
+        setEditFriendLocation(e.target.value);
+        if (!editFriendLocation) return;
+
+    const res = await fetchPlace(editFriendLocation);
+    !autocompleteCities.includes(e.target.value) &&
+    res.features &&
+        setAutocompleteCities(res.features.map((place) => place.place_name));
+        res.error ? setAutocompleteErr(res.error) : setAutocompleteErr("");
+
+    };
 
 //edits friend info
     const editFriendData = (friendData, id) => {
         api.updateFriend(friendData, id).then((response) => {
             console.log(friendData);
+            refreshFriendsList();
                 })
         }
-    
+        
 //patch friend info after edit
-function editFriend(friend_id) {
-    let friendData = {};
-    if (newFriendName) friendData['name'] = newFriendName;
-    if (newFriendLocation) friendData['location'] = newFriendLocation;
-    if (newFriendInterest.length > 0) friendData['interest'] = newFriendInterest;
-    console.log('newFriendName:', newFriendName);
-    console.log('newFriendLocation:', newFriendLocation);
-    console.log('newFriendInterest:', newFriendInterest);
-    editFriendData(friendData, friend_id)
-    .then(refreshFriendsList)
-}
+    function editFriend(friendId) {
+        let friendData = {};
+        if (newFriendName) friendData['name'] = newFriendName;
+        if (newFriendInterest.length > 0) friendData['interest'] = newFriendInterest;
+        if (editFriendLocation) {
+            friendData['location'] = editFriendLocation;
+            friendData['location_coords'] = ['0', '0'];
+            // updateFindCoords(editFriendLocation, friendData, friendId);
+        } 
+        editFriendData(friendData, friendId)
+            .then(() => 
+                refreshFriendsList());
+            
+    }
 
-//handle date history displayes
+//handle date history displays
     const handleDateHistoryButton = (friend) => {
         const datesList = friend.dates
         if (datesList.length > 0 ) {
@@ -169,7 +218,6 @@ function editFriend(friend_id) {
             return <div>No Dates yet!</div>;
         }
     } 
-
 
 //handle delete button clicked
     const handleDeleteButton = (friendId) => {
@@ -233,28 +281,6 @@ function editFriend(friend_id) {
         addFriendButton === 'Cancel' ? setAddFriendButton('Add Friend') : setAddFriendButton('Cancel')
     };
 
-// post new friend to database after submit is clicked
-    function newFriend(e) {
-        e.preventDefault();
-        if (newFriendName === "" || newFriendLocation === "" || newFriendInterest.length === 0) {
-            if(newFriendName === "") alert("Please enter a name")
-            if(newFriendLocation === "") alert("Please enter a location")
-            if(newFriendInterest.length === 0) alert("Please select at least one interest")
-            return;
-        }
-        console.log('newFriendName:', newFriendName);
-        console.log('newFriendLocation:', newFriendLocation);
-        console.log('newFriendInterest:', newFriendInterest);
-        createNewFriend({
-                'name': newFriendName,
-                'location': newFriendLocation,
-                'interest': newFriendInterest
-            });
-        setfriendForm(false);   
-        setAddFriendButton('Add Friend') 
-        window.location.reload()
-    };
-
     return (
         <>
             <Navigation />
@@ -278,7 +304,7 @@ function editFriend(friend_id) {
                                             <Popup trigger= {<button className="component-button" onClick={() => {
                                                     handleDateHistoryButton(friend.id)
                                                 }}> 
-                                                Dates Count: {friend.dates.length}
+                                                Dates: {friend.dates.length}
                                             </button>} modal nested>
                                                 {close => (
                                                     <div className='modal'>
@@ -299,6 +325,7 @@ function editFriend(friend_id) {
                                             <br/>
                                             <Popup trigger=
                                                 {<button className="component-button" onClick={() => {
+                                                    
                                             }}> Edit </button>} modal nested>
                                                 {close => (
                                                     <div className='modal'>
@@ -308,9 +335,32 @@ function editFriend(friend_id) {
                                                                 <label>Name: </label>
                                                                 <input className='friend-input' value={newFriendName} onChange={(e) => setNewFriendName(e.target.value)} type="name" placeholder={friend.name} id="friendname" name="friendname" />
                                                                 <br />
-                                                                <label>Location: </label>
-                                                                <input className="location-input" value={newFriendLocation} onChange={(e) => setNewFriendLocation(e.target.value)} type="location" placeholder={friend.location} id="friendlocation" name="friendlocation"/>
-                                                                <br/>
+                                                                <label htmlFor="city" className="label">
+                                                                    Location: 
+                                                                    {autocompleteErr && (
+                                                                    <span className="inputError">{autocompleteErr}</span>
+                                                                    )}
+                                                                        </label>
+                                                                        <input
+                                                                            list="places"
+                                                                            type="text"
+                                                                            id="city"
+                                                                            name="city"
+                                                                            onChange={handleEditCityChange}
+                                                                            value={editFriendLocation}
+                                                                            placeholder={friend.location}
+                                                                            pattern={autocompleteCities.join("|")}
+                                                                            autoComplete="off"
+                                                                        />
+                                                                        <datalist id="places">
+                                                                            {autocompleteCities.map((city, i) => (
+                                                                            <option key={i}>{city}</option>
+                                                                            ))}
+                                                                        </datalist>
+                                                                        <span className="placesAutocomplete__hint">
+                                                                            *start typing and choose your city from the given options
+                                                                        </span>
+                                                                        <br/>
                                                                 <label>Interests: </label>
                                                                 {interests.map((interest) => (
                                                                     <label key={interest}>
