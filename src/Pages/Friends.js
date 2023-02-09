@@ -54,7 +54,19 @@ const api = {
         axios
             .get(`https://us1.locationiq.com/v1/search?key=${process.env.REACT_APP_LOCATION_IQ_API_KEY}&q=${location}&format=json`)
             .then((response) => response.data)
-            .catch((api.logErr))
+            .catch((api.logErr)),
+    
+    updateDate: (id) =>
+        axios
+            .patch(`${api.baseUrl}/dates/${id}`)
+            .then((response)=> response.data)
+            .catch(api.logErr),
+    
+    deleteDate: (id) =>
+        axios
+            .delete(`${api.baseUrl}/dates/${id}`)
+            .then((response)=> response.data)
+            .catch(api.logErr)
 };
 
 export const fetchPlace = async (text) => {
@@ -128,14 +140,6 @@ export const Friends = (props) => {
         window.location.reload();
     };
 
-//gets friends coordinates when editing friend 
-//     const updateFindCoords = async (friendLocation, friendData, friend_id) => {
-//         const response = await api.getCoords(friendLocation);
-//         friendData['location_coords'] = [response[0].lat, response[0].lon];
-//         friendData['location_coords'] = ['0', '0'];
-//         editFriendData(friendData, friend_id)
-//             .then(() => refreshFriendsList());
-// };
 
 //post new friend to database
     useEffect(() => {
@@ -209,9 +213,17 @@ export const Friends = (props) => {
                 return <div className="box" key={date.id}>
                     {date.place}
                     <br />
-                    {date.review}
+                    {date.location}
                     <br />
-                    {date.completed}
+                    {date.category}
+                    <br />
+                    {date.rank}
+                    <div>
+                        <button className="component-button">Date Completed</button>
+                    </div>
+                    <div>
+                        <button className="component-button">Remove</button>
+                    </div>
                     </div>;
             });
         } else {
@@ -251,6 +263,7 @@ export const Friends = (props) => {
         }
         setNewFriendInterest(newSelectedInterests);
     } 
+    
 //edits current interest list
     const handleUpdateInterestClick = (e, currentInterest) => {
         setInterestSelected(true);
@@ -304,12 +317,12 @@ export const Friends = (props) => {
                                             <Popup trigger= {<button className="component-button" onClick={() => {
                                                     handleDateHistoryButton(friend.id)
                                                 }}> 
-                                                Dates: {friend.dates.length}
+                                                Date Ideas: {friend.dates.length}
                                             </button>} modal nested>
                                                 {close => (
                                                     <div className='modal'>
                                                         <h3>
-                                                            Dates with {friend.name}
+                                                            Dates Ideas for {friend.name}
                                                         </h3>
                                                         <div>
                                                             {handleDateHistoryButton(friend)}

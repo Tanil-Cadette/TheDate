@@ -31,25 +31,42 @@ const api = {
         axios
             .get(`${api.baseUrl}/friends`)
             .then((response) => response.data)
+            .catch(api.logErr),
+    
+    getDateRecommendations: (interest, location) =>
+        axios
+            .get(`${api.baseUrl}/recommendations/${interest}/${location}`)
+            .then((response) => response.data)
+            .catch(api.logErr),
+    
+    getPlaceAddress: (lat, lon) =>
+        axios
+            .get(`https://us1.locationiq.com/v1/reverse?key=${process.env.REACT_APP_LOCATION_IQ_API_KEY}&lat=${lat}&lon=${lon}&format=json`)
+            .then((response) => response.data)
+            .catch(api.logErr),
+    
+    createDate: (id, dateData) => 
+        axios 
+            .post(`${api.baseUrl}/friends/${id}/dates`, dateData)
+            .then((response)=> response.data)
             .catch(api.logErr)
 }
 
 export const Dashboard= (props) => {
 
-    const userData = JSON.stringify(Userfront.user, null, 2);
-
     const [friendsList, setFriendsList] = useState([]);
-    const [friendNames, setFriendNames] = useState([]);
     const [planDateForm, setPlanDateForm] = useState(false);
     const [planDateButton, setPlanDateButton] = useState('Plan Date');
     const [pickInterestForm, setPickInterestForm] = useState(false);
     const [pickedFriend, setPickedFriend]= useState('')
     const [pickedInterest, setPickedInterest] = useState('');
+    const [friendLocation, setFriendLocation] = useState('');
+    const [recommendations, setRecommendations] = useState([]);
+    const [friendId, setFriendId] = useState('');
 
     const refreshFriendsList = () => {
         api.getAllFriends().then((allFriends) =>{
             setFriendsList(allFriends);
-            console.log(friendsList);
         })
     }
     useEffect(refreshFriendsList, []);
@@ -69,7 +86,6 @@ export const Dashboard= (props) => {
             setPlanDateButton('Cancel')
             setPickedInterest('')
         }
-            // setFriendNames(friendsList.map((friend) => friend.name));
     };
 
     function handleFriendClicked(e) {
@@ -77,6 +93,12 @@ export const Dashboard= (props) => {
             setPickedFriend(e.target.value)
             setPickInterestForm(true);
             console.log(e.target.value);
+            friendsList.map((friend) => {
+                if (friend.name === e.target.value) {
+                    setFriendLocation(friend.location);
+                    setFriendId(friend.id);
+                }
+            })
         } else {
             setPickedFriend('')
             setPickInterestForm(false);
@@ -105,11 +127,71 @@ export const Dashboard= (props) => {
         if (e.target.checked){
             setPickedInterest(e.target.value)
             console.log(e.target.value)
+            console.log(friendLocation)
+            console.log(friendId)
         } else {
             setPickedInterest('')
         }
     }
 
+    function handleFindPlaces(interest, location) {
+        api.getDateRecommendations(interest, location).then((data) => {
+            console.log(data)
+            let recommendations = []
+            let i = 0;
+            (async function loop() {
+                if (i === data.length) {
+                    setRecommendations(recommendations);
+                    return;
+                }
+                let date = data[i++];
+                let address = await getAddress(date.geometry.lat, date.geometry.lng);
+                date["address"] = address;
+                recommendations.push(date);
+                setTimeout(loop, 1000);
+            })();
+        });
+    }
+    
+
+    useEffect(
+        handleFindPlaces, []);
+
+    function getAddress(lat, lon) {
+        return api.getPlaceAddress(lat, lon).then((data) => {
+            return data["display_name"]
+        });
+    }
+
+    function addDate(id, dateData) {
+        api.createDate(id, dateData).then((dateData) => {
+            console.log(dateData);
+        })
+        .catch((error) => {
+            console.log(error.response.data);
+            console.log(error.response.headers);
+            console.log(error.response.status);
+            console.log(error.response.statusText);
+        });
+    }
+
+    function handleAddDateButton(e) {
+        console.log(recommendations);
+        let dateData = {}
+        let place = e.target.value
+        console.log(place);
+        recommendations.map((rec) => {
+            if (place === rec.name) {
+                dateData["place"] = rec.name
+                dateData["location"] = rec.address
+                dateData["category"] = pickedInterest
+                dateData["rank"] = rec.rating
+                dateData["date_completed"] = false
+            }
+            return dateData
+        })
+        addDate(friendId, dateData);
+    }
 
     return (
         <>
@@ -139,7 +221,8 @@ export const Dashboard= (props) => {
                         <div>
                         {friendsList.map((friend) => (
                             <label key={friend.id}>
-                            <input type="radio" name="friend" value={friend.name} onClick={handleFriendClicked}/>
+                            <input type="radio" name="friend" value={friend.name} onClick={
+                                handleFriendClicked}/>
                             {friend.name}
                             <br/>
                             </label>                           
@@ -154,10 +237,39 @@ export const Dashboard= (props) => {
                         ) :
                         (<div></div>)}
                     <div>
-                    {pickedInterest ? (
+                    {pickedInterest&&friendLocation ? (
                         <div>
-                            {pickedInterest}
-                            {console.log(pickedFriend)}
+                            <br/>
+                            Let's go on a date with {pickedFriend} in {friendLocation} related to {pickedInterest}
+                            <br/>
+                            <br/>
+                            <button className="component-button" onClick={() => {
+                                handleFindPlaces(pickedInterest, friendLocation);
+                            }}>
+                                Find Date Recommendations
+                            </button>
+                            {recommendations.length > 0 ? 
+                                (<div>
+                                    {recommendations.map((rec) => {
+                                        return (
+                                            <>
+                                                <div className="box" key={rec.name}>
+                                                    <br />
+                                                    Name: {rec.name}
+                                                    <br />
+                                                    Address: {rec.address}
+                                                    <br />
+                                                    Rating: {rec.rating}
+                                                    <br />
+                                                    <div>
+                                                        <button className="component-button" value={rec.name} onClick={handleAddDateButton}>Add Date</button>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )
+                                    })}
+                                </div>) : 
+                                (<div></div>)}
                         </div>
                     ) : (<div></div>)}
                     </div>
