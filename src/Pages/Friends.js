@@ -56,9 +56,15 @@ const api = {
             .then((response) => response.data)
             .catch((api.logErr)),
     
-    updateDate: (id) =>
+    getAllDates: () =>
+        axios   
+            .get(`${api.baseUrl}/dates`)
+            .then((response)=> response.data)
+            .catch(api.logErr),
+    
+    updateDate: (id, dateData) =>
         axios
-            .patch(`${api.baseUrl}/dates/${id}`)
+            .patch(`${api.baseUrl}/dates/${id}`, dateData)
             .then((response)=> response.data)
             .catch(api.logErr),
     
@@ -81,7 +87,7 @@ export const fetchPlace = async (text) => {
     }
 };
 
-export const Friends = (props) => {
+export const Friends = (user) => {
     const [friendForm, setfriendForm] = useState(false);
     const [addFriendButton, setAddFriendButton] = useState('Add Friend')
     const [newFriendName, setNewFriendName] = useState('');
@@ -94,6 +100,9 @@ export const Friends = (props) => {
     const [autocompleteCities, setAutocompleteCities] = useState([]);
     const [autocompleteErr, setAutocompleteErr] = useState("");
     const [locationCoordinates, setLocationCoordinates] = useState([]);
+    const [datesList, setDatesList] = useState([]);
+    const [removeDateId, setRemoveDateId] = useState(null);
+    const [updateDateId, setUpdateDateId] = useState(null);
     const interests= ["Sights", "Beach", "Park", "Historical", "Nightlife", "Restaurant", "Shopping"]
 
 //updates the friend list
@@ -104,20 +113,20 @@ export const Friends = (props) => {
     }
     useEffect(refreshFriendsList, []);
 
-//deletes one friend 
-    const deleteFriend = (friendId) => {
-        if (friendId !== null){
-            api.deleteFriend(friendId).then((response) => {
-                let updatedFriendList = [...friendsList].filter(
-                    (friend) => friend.friendId !== friendId
-                );
-                setFriendsList(updatedFriendList);
-                setRemoveFriendId(null)
-                window.location.reload()
-                console.log(friendsList)
-            });
-        }
-        };
+//gets all dates
+    const refreshDatesList = () => {
+        api.getAllDates().then(allDates => {
+        setDatesList(
+            allDates.map(date => {
+            return { ...date, button: "Go Here?" };
+            })
+        );
+        });
+    };
+    
+
+    useEffect(refreshDatesList,[]);
+
 
 // post new friend to database after submit is clicked
     function newFriend(e) {
@@ -206,11 +215,11 @@ export const Friends = (props) => {
     }
 
 //handle date history displays
-    const handleDateHistoryButton = (friend) => {
-        const datesList = friend.dates
-        if (datesList.length > 0 ) {
+    const handleDateHistoryButton = (friendId) => {
+        if (datesList.length > 0) {
             return datesList.map(date => {
-                return <div className="box" key={date.id}>
+                if (date.friend_id === friendId) {
+                    return <div className="box" key={date.id}>
                     {date.place}
                     <br />
                     {date.location}
@@ -219,23 +228,91 @@ export const Friends = (props) => {
                     <br />
                     {date.rank}
                     <div>
-                        <button className="component-button">Date Completed</button>
+                        <button className="component-button" onClick={() => handleDateCompletedButton(date.id)}>{date.button}</button>
                     </div>
                     <div>
-                        <button className="component-button">Remove</button>
+                        <button className="component-button" onClick={() => handleDeleteDateButton(date.id)}>Remove</button>
                     </div>
                     </div>;
+                }
             });
-        } else {
-            return <div>No Dates yet!</div>;
-        }
+        } 
     } 
+
+//deletes one friend 
+    const deleteFriend = (friendId) => {
+        if (friendId !== null){
+            api.deleteFriend(friendId).then((response) => {
+                let updatedFriendList = [...friendsList].filter(
+                    (friend) => friend.friendId !== friendId
+                );
+                setFriendsList(updatedFriendList);
+                setRemoveFriendId(null)
+                window.location.reload()
+                console.log(friendsList)
+            });
+        }
+        };
 
 //handle delete button clicked
     const handleDeleteButton = (friendId) => {
         setRemoveFriendId(friendId);
     }
-    
+
+// removes friend if id selected
+    useEffect(() => {
+        deleteFriend(removeFriendId);
+    }, [removeFriendId]);
+
+//deletes one date
+    const deleteDate = (removeDateId) => {
+        if (removeDateId !== null) {
+            api.deleteDate(removeDateId).then((response) => {
+                setRemoveDateId(null);
+                window.location.reload()
+            });
+        }
+    };
+
+//handle delete date recommendation if clicked
+    const handleDeleteDateButton = (dateId) => {
+        setRemoveDateId(dateId);
+    }
+
+// removes date if id selected
+    useEffect(() => {
+        deleteDate(removeDateId);
+    }, [removeDateId])
+
+// post to database if a date was completed 
+    const updateDate = (updateDateId, dateData) => {
+        if (updateDateId !== null) {
+            api.updateDate(updateDateId, dateData).then((response) => {
+                setUpdateDateId(null);
+            })
+        }
+    }
+
+//handle update date button
+    const handleDateCompletedButton = (dateId) => {
+        setUpdateDateId(dateId);
+        setDatesList((prevDatesList) => {
+            return prevDatesList.map(date => {
+                if (date.id === dateId) {
+                    return { ...date, button: "Date Completed"};
+                }
+                return date;
+            });
+        });
+    }
+
+// sends post id updateDateID is changed
+    useEffect(() => {
+        updateDate(updateDateId, {
+            "date_completed": true
+        })
+    }, [updateDateId])
+
 //adds new friends to list 
     const createNewFriend = (newFriendData) => {
         api.postFriend(newFriendData).then((newFriend) => {
@@ -282,11 +359,6 @@ export const Friends = (props) => {
         setNewFriendInterest(newSelectedInterests);
 } 
 
-// removes friend if id selected
-    useEffect(() =>{
-        deleteFriend(removeFriendId);
-    }, [removeFriendId]);
-
 // changes add friend button from add friend to cancel 
     function toggleClick(e) {
         e.preventDefault();
@@ -299,7 +371,7 @@ export const Friends = (props) => {
             <Navigation />
         <div className="friends-body">
             <div>
-                <h3>{props.name}'s Friends </h3>
+                <h3>{user.name}'s Friends </h3>
                 {friendsList.length > 0 ? (
                     friendsList.map((friend) => {
                         const interestList = friend.interest;
@@ -325,7 +397,7 @@ export const Friends = (props) => {
                                                             Dates Ideas for {friend.name}
                                                         </h3>
                                                         <div>
-                                                            {handleDateHistoryButton(friend)}
+                                                            {handleDateHistoryButton(friend.id)}
                                                         </div>
                                                         <button className="component-button" onClick={() => close()}>
                                                                     Close

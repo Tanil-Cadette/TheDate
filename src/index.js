@@ -2,16 +2,26 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { Dashboard } from './Pages/Dashboard';
+import { Friends } from './Pages/Friends';
+import { Profile } from './Pages/Profile';
+import { Register } from './Pages/Profile';
+import { Login } from './Pages/Login';
 import reportWebVitals from './reportWebVitals';
-import { AuthProvider } from './context/AuthProvider';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-        <App />
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<App />} />
+        <Route path="/dashboard" element={<Dashboard/>}/>
+        <Route path="/friends" element={<Friends />} />
+        <Route path="/profile" element={<Profile />} /> 
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
 
