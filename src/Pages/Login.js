@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useContext } from "react"
 import ReactDOM from "react-dom/client";
 import { Dashboard } from "./Dashboard";
 import axios from "axios";
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { Navigate } from "react-router-dom";
+import { Navigation } from "./Navigation";
+import { Link, withRouter } from "react-router-dom";
+import '../App.css';
 
 
 const api = {
@@ -34,7 +37,7 @@ const api = {
             .catch(api.logErr)
 }
 
-export const Login = (props) => {
+export const Login = () => {
     const navigate = useNavigate();
     const userRef = useRef();
     const errRef = useRef();
@@ -42,16 +45,8 @@ export const Login = (props) => {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [errMsg, setErrMsg] = useState('');
-    const [authenticated, setauthenticated] = useState(localStorage.getItem(localStorage.getItem("authenticated")|| false));
-    const [userObject, setUserObject] = useState({})
-
-    // useEffect(() => {
-    //     userRef.current.focus();
-    // }, [])
-
-    useEffect(() => {
-        setErrMsg('');
-    }, [email, pass])
+    const [authenticated, setauthenticated] = useState(false);
+    const [userObject, setUserObject] = useState({});
 
     const refreshUsersList = () => {
         api.getAllUsers().then((usersData) => {
@@ -62,21 +57,30 @@ export const Login = (props) => {
 
     useEffect(refreshUsersList, []);
 
+    useEffect(() => {
+        if (userObject && authenticated) {
+            console.log(userObject);
+            navigateToDashboard();
+        }
+    }, [userObject, authenticated]);
+
+    const navigateToDashboard = () => {
+        navigate("/dashboard", { state: { authenticated: authenticated, userObject: userObject } });
+    }
+
     const handleLoginButton = (e) => {
         e.preventDefault();
-        const account = allUsers.find((user) => user.email === email);
-        if (account && account.password === pass) {
-            // setauthenticated(true)
-            localStorage.setItem("authenticated", true);
-            console.log('successful')
+        if (allUsers) {
+            const account = allUsers.find((user) => user.email === email);
+            setUserObject(account);
+            if (account && account.password === pass) {
+                setauthenticated(true)
+                console.log('successful')
+        } else {
+            console.log('failed')
         }
-        };
+        }};
 
-        if (authenticated) {
-            return <Navigate replace to="/dashboard" />;
-            } else {
-            return  <Login />;
-            }
         
     const handleEmail = (e) => {
         e.preventDefault();
@@ -95,7 +99,7 @@ export const Login = (props) => {
         <header>
             <h1 className='header'>The Date.</h1>
         </header>
-                <body className='App'>
+                <div className='App'>
                     <div className="auth-form-container">
                 <h2>Login</h2>
                 <div>
@@ -107,70 +111,13 @@ export const Login = (props) => {
                         <br/>
                         <button onClick={(e) => handleLoginButton(e)} >Login</button>
                     </form>
-                <button className="link-button" onClick ={() => props.onFormSwitch('register')}>Don't have an account? Register Here</button>
+                    <br/>
+                <div className="link">
+                    <Link to="/register">Don't have an account? Register Here</Link>
+                </div>
                 </div>
             </div>
-            </body>
+            </div>
         </>
     )
 }
-
-{/* <form className="login-form">
-                        <label htmlFor="email">Email:</label> 
-                        <input value={email} onChange={handleEmail} type="email" placeholder="" id="email" ref={userRef} required/>
-                        <label htmlFor="password">Password:</label> 
-                        <input value={pass} onChange={handlePassword} type="password" placeholder="" id="password" required/>
-                        <br/>
-                        <button onClick={() => handleLoginButton()} >Login</button>
-                    </form>
-                <button className="link-button" onClick ={() => props.onFormSwitch('register')}>Don't have an account? Register Here</button>
-             */}
-//     const { setAuth } = useContext(AuthContext);
-//     const userRef= useRef();
-//     const errRef= useRef();
-
-//     const [email, setEmail] = useState('');
-//     const [pass, setPass] = useState('');
-//     const [errMsg, setErrMsg] = useState('');
-//     const [success, setSuccess] = useState(false);
-
-//     const handleSubmit = (e) => {
-//         e.preventDefault();
-//         setSuccess(true);
-//         console.log(email);
-//     }
-
-//     useEffect(() => {
-//         userRef.current.focus();
-//     }, [])
-
-//     useEffect(() => {
-//         setErrMsg('');
-//     }, [email, pass])
-
-//     return (
-//         <>
-//         {success ? (
-//             <div className="homepage">
-//                     <Homepage name="Tanil"/>
-//             </div>
-//         ) : (
-//             <body className='App'>
-//                 <div className="auth-form-container">
-//                 <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live= "assertive">{errMsg}</p>
-//                     <h2>Login</h2>
-//                         <form className="login-form" onSubmit={handleSubmit}>
-//                             <label htmlFor="email">Email:</label> 
-//                             <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="" id="email" name="email" required/>
-//                             <label htmlFor="password">Password:</label> 
-//                             <input value={pass} onChange={(e) => setPass(e.target.value)} type="password" placeholder="" id="password" name="password" required/>
-//                             <br/>
-//                             <button type="submit">Login</button>
-//                         </form>
-//                     <button className="link-button" onClick ={() => props.onFormSwitch('register')}>Don't have an account? Register Here</button>
-//                 </div>
-//             </body>
-//         )}
-//         </>
-//     )
-// }

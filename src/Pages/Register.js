@@ -1,6 +1,7 @@
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 
 const api = {
     baseUrl: process.env.REACT_APP_BACKEND_URL,
@@ -74,7 +75,10 @@ export const Register = (props) => {
                 <input value={pass} onChange={handlePassword} type="password" placeholder="Minimum 8 characters" id="password" name="password" required/>
                 <button onClick={handleRegisterButton}>Submit</button>
             </form>
-            <button className="link-button" onClick ={() => props.onFormSwitch('login')}>Already have an account? Login Here</button>
+            <br/>
+            <div className="link">
+                <Link to="/login">Already have an account? Login Here</Link>
+            </div>
         </div>
         </body>
     )

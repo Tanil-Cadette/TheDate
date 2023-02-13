@@ -54,7 +54,7 @@ button {
   color: brown;
 }
 
-.link-button {
+.link {
   background-color: transparent;
   color: white;
   text-decoration: underline;
@@ -64,12 +64,13 @@ button a:active {
   color: rgb(214, 127, 255);
 }
 
-.link-button a {
+.link-button {
+  background-color: transparent;
   color: white;
   text-decoration: underline;
 }
 
-.link-button a:visited {
+.link a:visited {
   color: white;
   text-decoration: underline;
 }

@@ -4,6 +4,8 @@ import axios from "axios";
 import "./Friends.css"
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import { Link, useLocation, Navigate } from "react-router-dom";
+
 
 
 const api = {
@@ -13,6 +15,12 @@ const api = {
         console.log("Request error", err.config.url, err.config.data);
         console.log(err);
     },
+
+    getUser: (userId) =>
+        axios
+            .get(`${api.baseUrl}/users/${userId}`)
+            .then((response) => response.data)
+            .catch(api.logErr),
 
     getAllFriends: () =>
         axios
@@ -32,9 +40,9 @@ const api = {
             .then((response) => response.data)
             .catch(api.logErr),
     
-    postFriend: (friendData) => 
+    postFriend: (user_id, friendData) => 
         axios
-            .post(`${api.baseUrl}/friends`, friendData)
+            .post(`${api.baseUrl}/users/${user_id}/friends`, friendData)
             .then((response) => response.data)
             .catch(api.logErr),
     
@@ -87,7 +95,13 @@ export const fetchPlace = async (text) => {
     }
 };
 
-export const Friends = (user) => {
+export const Friends = () => {
+    const location = useLocation();
+    // const { authenticated, userObject } = location.state || {};
+    const [authenticated, setauthenticated] = useState(location.state?.authenticated || false);
+    const [userObject, setUserObject] = useState(location.state?.userObject || {});
+    const [user, setUser] = useState({});
+    const [userId, setUserId] = useState(null);
     const [friendForm, setfriendForm] = useState(false);
     const [addFriendButton, setAddFriendButton] = useState('Add Friend')
     const [newFriendName, setNewFriendName] = useState('');
@@ -100,33 +114,111 @@ export const Friends = (user) => {
     const [autocompleteCities, setAutocompleteCities] = useState([]);
     const [autocompleteErr, setAutocompleteErr] = useState("");
     const [locationCoordinates, setLocationCoordinates] = useState([]);
+    const [datesId, setDatesId] = useState(null);
     const [datesList, setDatesList] = useState([]);
     const [removeDateId, setRemoveDateId] = useState(null);
     const [updateDateId, setUpdateDateId] = useState(null);
-    const interests= ["Sights", "Beach", "Park", "Historical", "Nightlife", "Restaurant", "Shopping"]
+    const [editFriendInfo, setEditFriendInfo] = useState({});
+    const [editFriendId, setEditFriendId] = useState(null);
+    const [editFriends , setEditFriends] = useState(false);
+    const interests= ["Sightseeing", "Amusement Park", "Escape Room", "Bowling", "Go Karts", "Beach", "Park", "Historical", "Nightlife", "Restaurant", "Golf"]
 
 //updates the friend list
-    const refreshFriendsList = () => {
-        api.getAllFriends().then((allFriends) =>{
-            setFriendsList(allFriends);
-        })
+    const refreshFriendsList = (userId) => {
+        if (userId) {
+            api.getUser(userId).then((userData) => {
+                setFriendsList(userData.friends);
+            });
+        }
     }
-    useEffect(refreshFriendsList, []);
+
+    useEffect(() => {
+        setUser(userObject);
+    }, []);
+
+    useEffect(() => {
+        if (user && user.id) {
+            setUserId(user.id);
+            refreshFriendsList(user.id);
+            console.log(user.id);
+            console.log(authenticated);
+            console.log(userObject);
+        }
+    }, [userId, user]);
+
 
 //gets all dates
-    const refreshDatesList = () => {
-        api.getAllDates().then(allDates => {
-        setDatesList(
-            allDates.map(date => {
-            return { ...date, button: "Go Here?" };
-            })
-        );
-        });
-    };
-    
+    // const refreshDatesList = (friendId) => {
+    //     if (userId) {
+    //         api.getFriend(friendId).then((userData) => {
+    //             let dates = userData.dates
+    //             setDatesList(
+    //                 dates.map(date => {
+    //                     return { ...date, button: "Completed?"};
+    //                 })
+    //             )
+    //         })
+    //     } 
+    //     api.getAllDates().then(allDates => {
+    //     setDatesList(
+    //         allDates.map(date => {
+    //         return { ...date, button: "Go Here?" };
+    //         })
+    //     );
+    //     });
+    // };
 
-    useEffect(refreshDatesList,[]);
+//handle update date button
+    const handleDateCompletedButton = (e, dateComplete, dateId) => {
+        console.log(dateComplete);
+        console.log(dateId);
+        console.log(e.target.innerHTML) ;
+        if( e.target.innerHTML === 'Completed?' && dateComplete){
+            e.target.innerHTML ='Completed';
+            api.updateDate(dateId, {"date_completed": true});
+        }
+        console.log('Date completed')
+        // setUpdateDateId(dateId)
+        // setDatesList((prevDatesList) => {
+        //     return prevDatesList.map(date => {
+        //         if (date.id === dateId) {
+        //             return { ...date, button: "Date Completed"};
+        //         }
+        //         return date;
+        //     });
+        // });
+    }
 
+    // useEffect(() => {
+    //     displayDatesList();
+    // }, [datesList]);
+
+
+    const handleDateHistoryButton = (friendDates) => {
+        // console.log(friendDates);
+        if (friendDates) {
+            return friendDates.map(date => {
+                if (!date.date_completed){
+                    date["button"] = 'Completed?'
+                }
+                    return <div className="box" key={date.id}>
+                    {date.place}
+                    <br />
+                    {date.location}
+                    <br />
+                    {date.category}
+                    <br />
+                    {date.rank}
+                    <div>
+                        <button className="component-button" key={date.id} onClick={(e) => handleDateCompletedButton(e, date["completed"]=true, date.id)}>{date.button}</button>
+                    </div>
+                    <div>
+                        <button className="component-button" key={date.id} onClick={() => handleDeleteDateButton(date.id)}>Remove</button>
+                    </div>
+                    </div>;
+            });
+        } 
+    } 
 
 // post new friend to database after submit is clicked
     function newFriend(e) {
@@ -152,14 +244,13 @@ export const Friends = (user) => {
 
 //post new friend to database
     useEffect(() => {
-        if (locationCoordinates.length > 0) {
-            createNewFriend({
+        if (locationCoordinates.length && userId) {
+            createNewFriend(userId, {
                 'name': newFriendName,
                 'location': newFriendLocation,
                 'interest': newFriendInterest,
                 'location_coords': locationCoordinates
             });
-            window.location.reload();
         }
     }, [locationCoordinates]);
 
@@ -192,10 +283,14 @@ export const Friends = (user) => {
 
 //edits friend info
     const editFriendData = (friendData, id) => {
-        api.updateFriend(friendData, id).then((response) => {
-            console.log(friendData);
-            refreshFriendsList();
-                })
+        if (userId) {
+            api.updateFriend(friendData, id).then((response) => {
+                console.log(friendData);
+                refreshFriendsList(userId);
+                //setauthenticated(true);
+                //window.location.reload()
+                    })
+        }
         }
         
 //patch friend info after edit
@@ -206,38 +301,28 @@ export const Friends = (user) => {
         if (editFriendLocation) {
             friendData['location'] = editFriendLocation;
             friendData['location_coords'] = ['0', '0'];
-            // updateFindCoords(editFriendLocation, friendData, friendId);
         } 
+        setEditFriendInfo(friendData);
+        setEditFriendId(friendId);
+        setEditFriends(!editFriends);
         editFriendData(friendData, friendId)
             .then(() => 
-                refreshFriendsList());
-            
+                setauthenticated(true),
+                refreshFriendsList()
+                );
     }
 
-//handle date history displays
-    const handleDateHistoryButton = (friendId) => {
-        if (datesList.length > 0) {
-            return datesList.map(date => {
-                if (date.friend_id === friendId) {
-                    return <div className="box" key={date.id}>
-                    {date.place}
-                    <br />
-                    {date.location}
-                    <br />
-                    {date.category}
-                    <br />
-                    {date.rank}
-                    <div>
-                        <button className="component-button" onClick={() => handleDateCompletedButton(date.id)}>{date.button}</button>
-                    </div>
-                    <div>
-                        <button className="component-button" onClick={() => handleDeleteDateButton(date.id)}>Remove</button>
-                    </div>
-                    </div>;
-                }
-            });
-        } 
-    } 
+//useEffect for edit friend data
+    useEffect(() => {
+        if (editFriendInfo && editFriendId && userId && authenticated) {
+            editFriendData(editFriendInfo, editFriendId);
+            refreshFriendsList(userId);
+            // refreshDatesList(userId);
+            
+        }
+    }, [editFriendId, editFriendInfo])
+
+
 
 //deletes one friend 
     const deleteFriend = (friendId) => {
@@ -293,19 +378,6 @@ export const Friends = (user) => {
         }
     }
 
-//handle update date button
-    const handleDateCompletedButton = (dateId) => {
-        setUpdateDateId(dateId);
-        setDatesList((prevDatesList) => {
-            return prevDatesList.map(date => {
-                if (date.id === dateId) {
-                    return { ...date, button: "Date Completed"};
-                }
-                return date;
-            });
-        });
-    }
-
 // sends post id updateDateID is changed
     useEffect(() => {
         updateDate(updateDateId, {
@@ -314,16 +386,18 @@ export const Friends = (user) => {
     }, [updateDateId])
 
 //adds new friends to list 
-    const createNewFriend = (newFriendData) => {
-        api.postFriend(newFriendData).then((newFriend) => {
-            setFriendsList(friendsList => [...friendsList, newFriend])
-        })
-        .catch((error) => {
-            console.log(error.response.data);
-            console.log(error.response.headers);
-            console.log(error.response.status);
-            console.log(error.response.statusText);
-        });
+    const createNewFriend = (userId,newFriendData) => {
+        if (userId) {
+            api.postFriend(userId, newFriendData).then((newFriend) => {
+                setFriendsList(friendsList => [...friendsList, newFriend])
+            })
+            .catch((error) => {
+                console.log(error.response.data);
+                console.log(error.response.headers);
+                console.log(error.response.status);
+                console.log(error.response.statusText);
+            });
+        }
     }
 
 //makes a list of all the interest clicked 
@@ -368,10 +442,17 @@ export const Friends = (user) => {
 
     return (
         <>
-            <Navigation />
+        <header>
+            <h1 className='header'>The Date.</h1>
+        </header>
+            <Navigation
+            authenticated={authenticated}
+            userObject={userObject}
+            />
         <div className="friends-body">
             <div>
-                <h3>{user.name}'s Friends </h3>
+                { user ? (<h3>{user.name}'s Friends </h3>) : (<div></div>)
+                }
                 {friendsList.length > 0 ? (
                     friendsList.map((friend) => {
                         const interestList = friend.interest;
@@ -386,8 +467,8 @@ export const Friends = (user) => {
                                 Interest: {interestString}
                                 <br/>
                                     <section className="friend-button">
-                                            <Popup trigger= {<button className="component-button" onClick={() => {
-                                                    handleDateHistoryButton(friend.id)
+                                            <Popup trigger= {<button className="component-button" key={friend.id} onClick={() => {
+                                                    handleDateHistoryButton(friend.dates);
                                                 }}> 
                                                 Date Ideas: {friend.dates.length}
                                             </button>} modal nested>
@@ -397,7 +478,7 @@ export const Friends = (user) => {
                                                             Dates Ideas for {friend.name}
                                                         </h3>
                                                         <div>
-                                                            {handleDateHistoryButton(friend.id)}
+                                                            {handleDateHistoryButton(friend.dates)}
                                                         </div>
                                                         <button className="component-button" onClick={() => close()}>
                                                                     Close
@@ -409,7 +490,7 @@ export const Friends = (user) => {
                                         <div className="friend-button">
                                             <br/>
                                             <Popup trigger=
-                                                {<button className="component-button" onClick={() => {
+                                                {<button className="component-button" onClick={(e) => { e.preventDefault()
                                                     
                                             }}> Edit </button>} modal nested>
                                                 {close => (
@@ -443,7 +524,6 @@ export const Friends = (user) => {
                                                                             ))}
                                                                         </datalist>
                                                                         <span className="placesAutocomplete__hint">
-                                                                            *start typing and choose your city from the given options
                                                                         </span>
                                                                         <br/>
                                                                 <label>Interests: </label>
@@ -463,8 +543,11 @@ export const Friends = (user) => {
                                                                     </label>                           
                                                                 ))}
                                                                 <br />
-                                                                <button className="component-button" onClick={() => {
-                                                                    editFriend(friend.id)
+                                                                <button className="component-button" onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    editFriend(friend.id);
+                                                                    //setUserId(friend.user_id);
+                                                                    //setauthenticated(true);
                                                                     }}>
                                                                     Submit
                                                                 </button>
@@ -531,7 +614,6 @@ export const Friends = (user) => {
                             ))}
                         </datalist>
                         <span className="placesAutocomplete__hint">
-                            *start typing and choose your city from the given options
                         </span>
                         <br />
                         <button className="component-button" onClick={newFriend}>

@@ -8,24 +8,14 @@ import { Profile } from './Pages/Profile';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 
-
-
-
-
 function App() {
-  const [currentForm, setCurrentForm] = useState('login');
-
-  const toggleForm = (formName) => {
-    setCurrentForm(formName);
-  }
-
 
   return (
     // <Router>
     <>
-      <header>
+      {/* <header>
         <h1 className='header'>The Date.</h1>
-      </header>
+      </header> */}
       {/* <div> */}
         {/* {currentForm === "login" ? <Login onFormSwitch={toggleForm}/> : <Register onFormSwitch={toggleForm}/>} */}
               {/* <Route path="/dashboard" element={<Dashboard/>}/> */}
