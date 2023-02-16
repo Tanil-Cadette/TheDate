@@ -1,5 +1,5 @@
 .friend-form {
-    background-color: white;
+    background-color: whitesmoke;
     display:list-item;
     text-align:left;
 }
@@ -12,7 +12,7 @@
 
 .friends-body {
     text-align:left;
-    background-color: white;
+    background-color: whitesmoke;
     display:list-item;
     overflow-y: scroll;
     height: 100vh;
@@ -33,13 +33,14 @@
 }
 
 .box {
-    border: 1px solid rgb(208, 202, 202);
-    background-color: lavender;
+    border: 1px solid rgba(134, 90, 228, 0.645);
+    background-color: white;
     width: 90%;
     height: auto;
     display: flex;
     justify-content: space-between;
-    border-radius: 5px;
+    border-radius: 2px;
+    padding:10px;
 }
 
 

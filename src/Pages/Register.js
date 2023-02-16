@@ -37,16 +37,32 @@ export const Register = (props) => {
     const [pass, setPass] = useState('');
     const [name, setName] = useState('');
 
-    const handleRegisterButton = (e) => {
-        api.postUser({
-            "name": name,
-            "email": email,
-            "password": pass
-        }).then((newUser) => {
+    const createUser = (userData) => {
+        api.postUser(userData).then((newUser) => {
             navigate('/dashboard')
         })
         console.log('successfully added');
     }
+
+    function newUser(e) {
+        // e.preventDefault();
+        if (email === "" || name === "" || pass.length < 8) {
+            if(name === "") alert("Please enter a name")
+            if(email === "") alert("Please enter an email")
+            if(pass.length < 8) alert("Minimum 8 characters")
+            return;
+        }};
+
+    useEffect(() => {
+        if (name && email && pass) {
+            createUser({
+                "name": name,
+                "email": email,
+                "password": pass
+            });
+        }
+    }, []);
+    
     const handleEmail = (e) => {
         e.preventDefault();
         setEmail(e.target.value)
@@ -73,7 +89,7 @@ export const Register = (props) => {
                 <input value={email} onChange={handleEmail} type="email" placeholder="" id="email" name="email" required/>
                 <label htmlFor="password">Password:</label> 
                 <input value={pass} onChange={handlePassword} type="password" placeholder="Minimum 8 characters" id="password" name="password" required/>
-                <button onClick={handleRegisterButton}>Submit</button>
+                <button onClick={newUser}>Submit</button>
             </form>
             <br/>
             <div className="link">

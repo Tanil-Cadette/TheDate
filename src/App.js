@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import './App.css';
-import { Dashboard } from './Pages/Dashboard';
-import { Login }  from './Pages/Login';
-import  { Register }  from './Pages/Register';
-import { Friends } from './Pages/Friends';
-import { Profile } from './Pages/Profile';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+// import { Dashboard } from './Pages/Dashboard';
+// import { Login }  from './Pages/Login';
+// import  { Register }  from './Pages/Register';
+// import { Friends } from './Pages/Friends';
+// import { Profile } from './Pages/Profile';
+// import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 
 function App() {

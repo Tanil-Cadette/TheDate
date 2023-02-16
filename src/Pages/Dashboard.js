@@ -233,7 +233,7 @@ export const Dashboard= () => {
             />
                 <div className="Homepage-body">
                     <div>
-                        <h3>Hi {userObject.name}, are you ready to plan a date?</h3>
+                        <h2>{userObject.name}'s Dashboard</h2>
                         <p>{new Date().toLocaleString() + ""}</p>
                         <ul>
                             <li>
@@ -303,7 +303,8 @@ export const Dashboard= () => {
                                             </>
                                         )
                                     })}
-                                </div>) : 
+                                </div>
+                                ) : 
                                 (<div></div>)}
                         </div>
                     ) : (<div></div>)}

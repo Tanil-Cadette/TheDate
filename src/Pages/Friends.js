@@ -97,7 +97,6 @@ export const fetchPlace = async (text) => {
 
 export const Friends = () => {
     const location = useLocation();
-    // const { authenticated, userObject } = location.state || {};
     const [authenticated, setauthenticated] = useState(location.state?.authenticated || false);
     const [userObject, setUserObject] = useState(location.state?.userObject || {});
     const [user, setUser] = useState({});
@@ -114,14 +113,12 @@ export const Friends = () => {
     const [autocompleteCities, setAutocompleteCities] = useState([]);
     const [autocompleteErr, setAutocompleteErr] = useState("");
     const [locationCoordinates, setLocationCoordinates] = useState([]);
-    const [datesId, setDatesId] = useState(null);
-    const [datesList, setDatesList] = useState([]);
     const [removeDateId, setRemoveDateId] = useState(null);
     const [updateDateId, setUpdateDateId] = useState(null);
     const [editFriendInfo, setEditFriendInfo] = useState({});
     const [editFriendId, setEditFriendId] = useState(null);
     const [editFriends , setEditFriends] = useState(false);
-    const interests= ["Sightseeing", "Amusement Park", "Escape Room", "Bowling", "Go Karts", "Beach", "Park", "Historical", "Nightlife", "Restaurant", "Golf"]
+    const interests= ["Sightseeing", "Rollercoaster", "Art", "Escape Room", "Bowling", "Go Karts", "Beach", "Picnic", "Historical", "Nightlife", "Restaurant", "Golf", "Swimming", "Movies"]
 
 //updates the friend list
     const refreshFriendsList = (userId) => {
@@ -146,28 +143,6 @@ export const Friends = () => {
         }
     }, [userId, user]);
 
-
-//gets all dates
-    // const refreshDatesList = (friendId) => {
-    //     if (userId) {
-    //         api.getFriend(friendId).then((userData) => {
-    //             let dates = userData.dates
-    //             setDatesList(
-    //                 dates.map(date => {
-    //                     return { ...date, button: "Completed?"};
-    //                 })
-    //             )
-    //         })
-    //     } 
-    //     api.getAllDates().then(allDates => {
-    //     setDatesList(
-    //         allDates.map(date => {
-    //         return { ...date, button: "Go Here?" };
-    //         })
-    //     );
-    //     });
-    // };
-
 //handle update date button
     const handleDateCompletedButton = (e, dateComplete, dateId) => {
         console.log(dateComplete);
@@ -178,28 +153,15 @@ export const Friends = () => {
             api.updateDate(dateId, {"date_completed": true});
         }
         console.log('Date completed')
-        // setUpdateDateId(dateId)
-        // setDatesList((prevDatesList) => {
-        //     return prevDatesList.map(date => {
-        //         if (date.id === dateId) {
-        //             return { ...date, button: "Date Completed"};
-        //         }
-        //         return date;
-        //     });
-        // });
     }
 
-    // useEffect(() => {
-    //     displayDatesList();
-    // }, [datesList]);
-
-
     const handleDateHistoryButton = (friendDates) => {
-        // console.log(friendDates);
         if (friendDates) {
             return friendDates.map(date => {
                 if (!date.date_completed){
                     date["button"] = 'Completed?'
+                } else {
+                    date["button"] = 'Date Completed'
                 }
                     return <div className="box" key={date.id}>
                     {date.place}
@@ -213,7 +175,11 @@ export const Friends = () => {
                         <button className="component-button" key={date.id} onClick={(e) => handleDateCompletedButton(e, date["completed"]=true, date.id)}>{date.button}</button>
                     </div>
                     <div>
-                        <button className="component-button" key={date.id} onClick={() => handleDeleteDateButton(date.id)}>Remove</button>
+                        <button className="link-button" key={date.id} onClick={() => handleDeleteDateButton(date.id)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="red" className="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                            </svg>
+                        </button>
                     </div>
                     </div>;
             });
@@ -251,6 +217,7 @@ export const Friends = () => {
                 'interest': newFriendInterest,
                 'location_coords': locationCoordinates
             });
+            console.log('successful')
         }
     }, [locationCoordinates]);
 
@@ -287,8 +254,10 @@ export const Friends = () => {
             api.updateFriend(friendData, id).then((response) => {
                 console.log(friendData);
                 refreshFriendsList(userId);
-                //setauthenticated(true);
-                //window.location.reload()
+                setNewFriendName('');
+                setNewFriendInterest('');
+                setNewFriendLocation('');
+                window.location.reload();
                     })
         }
         }
@@ -306,19 +275,13 @@ export const Friends = () => {
         setEditFriendId(friendId);
         setEditFriends(!editFriends);
         editFriendData(friendData, friendId)
-            .then(() => 
-                setauthenticated(true),
-                refreshFriendsList()
-                );
     }
 
 //useEffect for edit friend data
     useEffect(() => {
         if (editFriendInfo && editFriendId && userId && authenticated) {
             editFriendData(editFriendInfo, editFriendId);
-            refreshFriendsList(userId);
-            // refreshDatesList(userId);
-            
+            refreshFriendsList(userId);            
         }
     }, [editFriendId, editFriendInfo])
 
@@ -451,7 +414,7 @@ export const Friends = () => {
             />
         <div className="friends-body">
             <div>
-                { user ? (<h3>{user.name}'s Friends </h3>) : (<div></div>)
+                { user ? (<h2>{user.name}'s Friends </h2>) : (<div></div>)
                 }
                 {friendsList.length > 0 ? (
                     friendsList.map((friend) => {
@@ -460,9 +423,10 @@ export const Friends = () => {
                         return (  
                         <>
                             <div className="box" key={friend.id} > 
-                                Name: {friend.name} 
+                                {friend.name}
                                 <br />
-                                Location: {friend.location}
+                                    {friend.location}
+                                
                                 <br/>
                                 Interest: {interestString}
                                 <br/>
@@ -490,9 +454,14 @@ export const Friends = () => {
                                         <div className="friend-button">
                                             <br/>
                                             <Popup trigger=
-                                                {<button className="component-button" onClick={(e) => { e.preventDefault()
+                                                {<button className="link-button" onClick={(e) => { e.preventDefault()
                                                     
-                                            }}> Edit </button>} modal nested>
+                                            }}> 
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="black" className="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                            </svg>
+                                            </button>} modal nested>
                                                 {close => (
                                                     <div className='modal'>
                                                         <div>
@@ -561,9 +530,13 @@ export const Friends = () => {
                                                 )}
                                             </Popup>
                                             <br/>
-                                            <button className="component-button" onClick={() => {
+                                            <button className="link-button" onClick={() => {
                                                 handleDeleteButton(friend.id)
-                                            }}> Remove </button>
+                                            }}> 
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="red" className="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                            </svg>
+                                            </button>
                                         </div>
                                     </div>
                     </>

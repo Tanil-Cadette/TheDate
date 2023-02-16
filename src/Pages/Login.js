@@ -51,7 +51,7 @@ export const Login = () => {
     const refreshUsersList = () => {
         api.getAllUsers().then((usersData) => {
             setAllUsers(usersData);
-            console.log(allUsers);
+            console.log(`current users: ${usersData}`);
         })
     }
 

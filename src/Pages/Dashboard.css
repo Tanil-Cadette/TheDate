@@ -29,7 +29,7 @@
     outline: 0;
     color: white!important;
     background-color: transparent!important;
-    padding: 44px 24px!important;
+    padding: 30px 24px!important;
     user-select: none;
     overflow: hidden;
     text-decoration: none;
@@ -76,3 +76,13 @@
 .Homepage-nav a:active {
     color: rgb(246, 121, 246);
 }
+
+/* input[type="radio"] {
+    height: 20px;
+    width: 20px;
+    background-color: red;
+    border-radius: 60%;
+    border: 30px solid purple;
+    position: relative;
+    top: 5px;
+} */
