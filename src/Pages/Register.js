@@ -51,7 +51,13 @@ export const Register = (props) => {
             if(email === "") alert("Please enter an email")
             if(pass.length < 8) alert("Minimum 8 characters")
             return;
-        }};
+        }
+        createUser({
+            "name": name,
+            "email": email,
+            "password": pass
+        });
+    };
 
     useEffect(() => {
         if (name && email && pass) {

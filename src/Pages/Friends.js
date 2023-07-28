@@ -189,6 +189,7 @@ export const Friends = () => {
 // post new friend to database after submit is clicked
     function newFriend(e) {
         e.preventDefault();
+        console.log("add new friend button clicked")
         if (newFriendName === "" || newFriendLocation === "" || newFriendInterest.length === 0) {
             if(newFriendName === "") alert("Please enter a name")
             if(newFriendLocation === "") alert("Please enter a location")
